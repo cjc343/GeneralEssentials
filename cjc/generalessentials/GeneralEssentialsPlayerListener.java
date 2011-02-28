@@ -1,4 +1,4 @@
-package com.bukkit.cjc.generalessentials;
+package cjc.generalessentials;
 
 import java.lang.Integer;
 import java.io.BufferedReader;
@@ -14,30 +14,31 @@ import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.inventory.ItemStack;
 
-
-
-
 public class GeneralEssentialsPlayerListener extends PlayerListener {
 	private ArrayList<String> kits = new ArrayList<String>();
 	private ArrayList<String> players = new ArrayList<String>();
 	private ArrayList<ArrayList<String>> kitsreq = new ArrayList<ArrayList<String>>();
 	private Logger log = Logger.getLogger("Minecraft");
-	
-	
-	
+
 	public void onPlayerCommand(PlayerChatEvent e) {
 		String[] m = e.getMessage().toLowerCase().split(" ");
 		Player p = e.getPlayer();
-		if (m[0].equals("/kit"))  { // && (GeneralEssentials.Permissions.has(p, "generalessentials.kit")))
-			// props.getProperty("kits-enable")
-			// ==
-			// "true"){
+		System.out.println("Player Name: " + p.getName());
+		if (m[0].equals("/kit")) {
 			if (m.length == 1) {
 				String msg = "§cKits available: ";
-				for (int i = 0; i < kits.size(); i += 3)
-					if (GeneralEssentials.Permissions.has(p, "generalessentials.kit." + kits.get(i).toString())) {
+				for (int i = 0; i < kits.size(); i += 3) {
+					Boolean hasPerm = false;
+					if (GeneralEssentials.Permissions == null) {
+						System.out.println("PERMISSIONS IS NULL");
+						hasPerm = true;
+					} else {
+						hasPerm = GeneralEssentials.Permissions.permission(p, "generalessentials.kit." + kits.get(i).toString());
+					}
+					if (hasPerm) {
 						msg += kits.get(i) + " ";
 					}
+				}
 				p.sendMessage(msg);
 			} else if (m.length >= 2) {
 				int kPos = kits.indexOf(m[1]);
@@ -45,10 +46,10 @@ public class GeneralEssentialsPlayerListener extends PlayerListener {
 					p.sendMessage("§cKit by the name of §e" + m[1] + "§c does not exist!");
 				else {
 
-						if (!GeneralEssentials.Permissions.has(p, "generalessentials.kit." + m[1].toLowerCase())) {
-							p.sendMessage("You do not have permission for that kit.");
-							return;
-						}
+					if (!GeneralEssentials.Permissions.has(p, "generalessentials.kit." + m[1].toLowerCase())) {
+						p.sendMessage("You do not have permission for that kit.");
+						return;
+					}
 
 					String pName = p.getName();
 					int pPos = players.indexOf(pName);
@@ -136,7 +137,7 @@ public class GeneralEssentialsPlayerListener extends PlayerListener {
 
 	public boolean reload() {
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(new File("plugins/General/general.kits")));
+			BufferedReader br = new BufferedReader(new FileReader(new File(GeneralEssentials.path + "/general.kits")));
 			String l;
 			int lineNumber = 1;
 			kits.clear();
@@ -156,7 +157,7 @@ public class GeneralEssentialsPlayerListener extends PlayerListener {
 				lineNumber++;
 			}
 		} catch (Exception e) {
-			log.warning("An error occured: either plugins/General/general.kits does not exist or could not be read; kits ignored");
+			log.warning("An error occured: either " + GeneralEssentials.path + "/general.kits" + " does not exist or could not be read; kits ignored");
 		}
 		// Return success
 		return true;
