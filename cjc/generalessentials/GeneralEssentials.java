@@ -7,37 +7,44 @@ import java.io.FileWriter;
 import java.io.BufferedWriter;
 import java.io.PrintWriter;
 
-import org.bukkit.event.Event.Priority;
-import org.bukkit.event.Event.Type;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+//import org.bukkit.event.Event.Priority;
+//import org.bukkit.event.Event.Type;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
+//import org.bukkit.plugin.PluginManager;
 import java.util.logging.Logger;
 
 import com.nijikokun.bukkit.Permissions.Permissions;
-import com.nijiko.Messaging;
+//import com.nijiko.Messaging;
 import com.nijiko.permissions.PermissionHandler;
 
 public class GeneralEssentials extends JavaPlugin {
 	private GeneralEssentialsPlayerListener gepl = new GeneralEssentialsPlayerListener();
 	private Logger log = Logger.getLogger("Minecraft");
-	private PluginManager pm;
+	//private PluginManager pm;
 	public static PermissionHandler Permissions = null;
 	public static String path;
 	
 	public void onEnable() {
-		path = getServer().getPluginManager().getPlugin("General").getDataFolder().getPath();
+		try {
+			path = getServer().getPluginManager().getPlugin("General").getDataFolder().getPath();
+		} catch (Exception e) {
+			log.warning(getDescription().getName() + " requires that 'General' be installed as well.");
+		}
 
 		setupPermissions();
 		// Loading GE files
 		if (gepl.reload() == false)
 			return;
 		// Get the plugin manager
-		pm = getServer().getPluginManager();
+		//pm = getServer().getPluginManager();
 		// Add help
 		try {
 			File g_help = new File(path + "/general.help");
-			String[] gehelp = { "/gereload &5-&3 Reload any General Essentials settings", "/kit &b(name) &5-&3 List or receive kit" };
+			String[] gehelp = { "/gereload &5-&3 Reload any " + getDescription().getName() + "  settings", "/kit &b(name) &5-&3 List or receive kit" };
 			BufferedReader br = new BufferedReader(new FileReader(g_help));
 			PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(g_help, true)));
 			boolean toBeAdded;
@@ -58,14 +65,15 @@ public class GeneralEssentials extends JavaPlugin {
 			}
 			pw.close();
 		} catch (Exception e) {
-			log.warning("Failed to find plugins/General/general.help; help entries will not be entered");
+			log.warning("Failed to find " + path + "/general.help; help entries will not be entered");
+			
 		}
 
 		// Load plugin
-		pm.registerEvent(Type.PLAYER_COMMAND, gepl, Priority.Low, this);
+		//pm.registerEvent(Type.PLAYER_COMMAND, gepl, Priority.Low, this);
 
 		// Assume success
-		log.info("Launched General Essentials plugin v. 1.0.5.2 -- 1.0.5 w/o constructor compiled with bukkit 409");
+		log.info("Launched " + getDescription().getFullName());
 	}
 
 	public void onDisable() {
@@ -73,9 +81,23 @@ public class GeneralEssentials extends JavaPlugin {
 		// log.info("General Essentials plugins is disabled");
 	}	
 	
+	@Override
+    public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
+		Player p;
+		if (sender instanceof Player) {
+			p = (Player) sender;
+		} else {
+			return false;
+		}
+		gepl.onPlayerCommand(p, command, args);
+		
+		return true;
+		
+	}
+	
 	//new setupPermissions courtesy of Acru
 	//http://forums.bukkit.org/posts/79813/
-	//changed this to TimeShift
+	//changed this to GE
 	private void setupPermissions() {
         Plugin test = this.getServer().getPluginManager().getPlugin("Permissions");
         if (GeneralEssentials.Permissions == null) {
@@ -83,7 +105,7 @@ public class GeneralEssentials extends JavaPlugin {
                 this.getServer().getPluginManager().enablePlugin(test); // This line.
                 GeneralEssentials.Permissions = ((Permissions)test).getHandler();
             } else {
-				log.info(Messaging.bracketize("GeneralEssentials") + " Permission system not enabled. Disabling plugin.");
+				log.info("[" + (getDescription().getName()) + "]" + " Permission system not enabled. Disabling plugin.");
 				this.getServer().getPluginManager().disablePlugin(this);
 			}
         }

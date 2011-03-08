@@ -9,23 +9,24 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerChatEvent;
-import org.bukkit.event.player.PlayerListener;
+//import org.bukkit.event.player.PlayerChatEvent;
+//import org.bukkit.event.player.PlayerListener;
 import org.bukkit.inventory.ItemStack;
 
-public class GeneralEssentialsPlayerListener extends PlayerListener {
+public class GeneralEssentialsPlayerListener {
 	private ArrayList<String> kits = new ArrayList<String>();
 	private ArrayList<String> players = new ArrayList<String>();
 	private ArrayList<ArrayList<String>> kitsreq = new ArrayList<ArrayList<String>>();
 	private Logger log = Logger.getLogger("Minecraft");
 
-	public void onPlayerCommand(PlayerChatEvent e) {
-		String[] m = e.getMessage().toLowerCase().split(" ");
-		Player p = e.getPlayer();
-		System.out.println("Player Name: " + p.getName());
-		if (m[0].equals("/kit")) {
-			if (m.length == 1) {
+	public void onPlayerCommand(Player p, Command command, String[] m) {
+		//String[] m = e.getMessage().toLowerCase().split(" ");
+		//Player p = e.getPlayer();
+		//System.out.println("Player Name: " + p.getName());
+		if (command.getName().equals("kit")) {
+			if (m.length == 0) {
 				String msg = "§cKits available: ";
 				for (int i = 0; i < kits.size(); i += 3) {
 					Boolean hasPerm = false;
@@ -40,13 +41,13 @@ public class GeneralEssentialsPlayerListener extends PlayerListener {
 					}
 				}
 				p.sendMessage(msg);
-			} else if (m.length >= 2) {
-				int kPos = kits.indexOf(m[1]);
+			} else if (m.length >= 1) {
+				int kPos = kits.indexOf(m[0]);
 				if (kPos == -1)
-					p.sendMessage("§cKit by the name of §e" + m[1] + "§c does not exist!");
+					p.sendMessage("§cKit by the name of §e" + m[0] + "§c does not exist!");
 				else {
 
-					if (!GeneralEssentials.Permissions.has(p, "generalessentials.kit." + m[1].toLowerCase())) {
+					if (!GeneralEssentials.Permissions.has(p, "generalessentials.kit." + m[0].toLowerCase())) {
 						p.sendMessage("You do not have permission for that kit.");
 						return;
 					}
@@ -62,7 +63,7 @@ public class GeneralEssentialsPlayerListener extends PlayerListener {
 						kitsreq.add(new ArrayList<String>());
 
 						// Add the kit and timestamp into the list
-						InsertIntoPlayerList(m[1], newPos);
+						InsertIntoPlayerList(m[0], newPos);
 
 						// Receive the kit
 						GetKit(kPos + 1, p);
@@ -71,11 +72,11 @@ public class GeneralEssentialsPlayerListener extends PlayerListener {
 					// Player did previously request a kit...
 					else {
 						ArrayList<String> al = kitsreq.get(pPos);
-						int alPos = al.indexOf(m[1]);
+						int alPos = al.indexOf(m[0]);
 
 						// ...but not the selected one
 						if (alPos == -1) {
-							InsertIntoPlayerList(m[1], pPos);
+							InsertIntoPlayerList(m[0], pPos);
 							GetKit(kPos + 1, p);
 						}
 
@@ -91,18 +92,18 @@ public class GeneralEssentialsPlayerListener extends PlayerListener {
 							else {
 								al.remove(alPos);
 								al.remove(alPos);
-								InsertIntoPlayerList(m[1], pPos);
+								InsertIntoPlayerList(m[0], pPos);
 								GetKit(kPos + 1, p);
 							}
 						}
 					}
 				}
 			}
-		} else if (m[0].equals("/gereload") && (GeneralEssentials.Permissions.has(p, "generalessentials.reload"))) {
+		} else if (command.getName().equals("/gereload") && (GeneralEssentials.Permissions.has(p, "generalessentials.reload"))) {
 			reload();
 			log.info("General Essentials plugin reloaded");
 			p.sendMessage("GeneralEssentials has been reloaded.");
-		} else if (m[0].equals("/gereload") || m[0].equals("/kit")) {
+		} else if (command.getName().equals("/gereload") || command.getName().equals("/kit")) {
 			p.sendMessage("You do not have permission to do that. (GeneralEssentials)");
 		}
 	}
