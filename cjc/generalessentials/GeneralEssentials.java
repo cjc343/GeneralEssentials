@@ -10,22 +10,20 @@ import java.io.PrintWriter;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-//import org.bukkit.event.Event.Priority;
-//import org.bukkit.event.Event.Type;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.event.Event;
+import org.bukkit.event.Event.Priority;
 import org.bukkit.plugin.Plugin;
-//import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import java.util.logging.Logger;
 
 import com.nijikokun.bukkit.Permissions.Permissions;
-//import com.nijiko.Messaging;
-import com.nijiko.permissions.PermissionHandler;
 
 public class GeneralEssentials extends JavaPlugin {
 	private GeneralEssentialsPlayerListener gepl = new GeneralEssentialsPlayerListener();
+	private GeneralEssentialsServerListener gesl = new GeneralEssentialsServerListener(this);
 	private Logger log = Logger.getLogger("Minecraft");
-	//private PluginManager pm;
-	public static PermissionHandler Permissions = null;
+	public static Permissions Permissions = null;
 	public static String path;
 	
 	public void onEnable() {
@@ -35,12 +33,9 @@ public class GeneralEssentials extends JavaPlugin {
 			log.warning(getDescription().getName() + " requires that 'General' be installed as well.");
 		}
 
-		setupPermissions();
 		// Loading GE files
 		if (gepl.reload() == false)
 			return;
-		// Get the plugin manager
-		//pm = getServer().getPluginManager();
 		// Add help
 		try {
 			File g_help = new File(path + "/general.help");
@@ -69,9 +64,9 @@ public class GeneralEssentials extends JavaPlugin {
 			
 		}
 
-		// Load plugin
-		//pm.registerEvent(Type.PLAYER_COMMAND, gepl, Priority.Low, this);
-
+		// Permissions
+		setupPermissions();
+		getServer().getPluginManager().registerEvent(Event.Type.PLUGIN_ENABLE, gesl, Priority.Low, this);
 		// Assume success
 		log.info("Launched " + getDescription().getFullName());
 	}
@@ -95,19 +90,14 @@ public class GeneralEssentials extends JavaPlugin {
 		
 	}
 	
-	//new setupPermissions courtesy of Acru
-	//http://forums.bukkit.org/posts/79813/
-	//changed this to GE
-	private void setupPermissions() {
-        Plugin test = this.getServer().getPluginManager().getPlugin("Permissions");
+    private void setupPermissions() {
+    	//setup permissions and iconomy
+        Plugin plugin = this.getServer().getPluginManager().getPlugin("Permissions");
         if (GeneralEssentials.Permissions == null) {
-            if (test != null) {
-                this.getServer().getPluginManager().enablePlugin(test); // This line.
-                GeneralEssentials.Permissions = ((Permissions)test).getHandler();
-            } else {
-				log.info("[" + (getDescription().getName()) + "]" + " Permission system not enabled. Disabling plugin.");
-				this.getServer().getPluginManager().disablePlugin(this);
-			}
+            if (plugin != null) {
+            	GeneralEssentials.Permissions = (Permissions)plugin;
+                System.out.println("[GeneralEssentials] hooked into Permissions.");
+            }
         }
-    }//modified setup method from Permissions thread by Niji
+    }
 }

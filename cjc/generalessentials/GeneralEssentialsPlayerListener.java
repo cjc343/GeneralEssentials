@@ -34,7 +34,7 @@ public class GeneralEssentialsPlayerListener {
 						System.out.println("PERMISSIONS IS NULL");
 						hasPerm = true;
 					} else {
-						hasPerm = GeneralEssentials.Permissions.permission(p, "generalessentials.kit." + kits.get(i).toString());
+						hasPerm = GeneralEssentials.Permissions.getHandler().permission(p, "generalessentials.kit." + kits.get(i).toString());
 					}
 					if (hasPerm) {
 						msg += kits.get(i) + " ";
@@ -47,7 +47,7 @@ public class GeneralEssentialsPlayerListener {
 					p.sendMessage("§cKit by the name of §e" + m[0] + "§c does not exist!");
 				else {
 
-					if (!GeneralEssentials.Permissions.has(p, "generalessentials.kit." + m[0].toLowerCase())) {
+					if (!GeneralEssentials.Permissions.getHandler().has(p, "generalessentials.kit." + m[0].toLowerCase())) {
 						p.sendMessage("You do not have permission for that kit.");
 						return;
 					}
@@ -99,7 +99,7 @@ public class GeneralEssentialsPlayerListener {
 					}
 				}
 			}
-		} else if (command.getName().equals("/gereload") && (GeneralEssentials.Permissions.has(p, "generalessentials.reload"))) {
+		} else if (command.getName().equals("/gereload") && (GeneralEssentials.Permissions.getHandler().has(p, "generalessentials.reload"))) {
 			reload();
 			log.info("General Essentials plugin reloaded");
 			p.sendMessage("GeneralEssentials has been reloaded.");

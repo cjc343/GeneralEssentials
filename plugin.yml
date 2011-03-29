@@ -1,7 +1,10 @@
 name: GeneralEssentials
 main: cjc.generalessentials.GeneralEssentials
-version: 1.1
-author: wjykk (Original Program), cjc (Some Updates
+version: 1.1.1
+depend:
+  - General
+  - Permissions
+author: wjykk (Original Program), cjc (Some Updates)
 description: >
              General add-on that provides /kit commands.
 commands:
